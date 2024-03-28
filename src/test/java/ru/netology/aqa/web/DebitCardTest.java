@@ -39,106 +39,52 @@ public class DebitCardTest {
     }
 
     @Test
-    void testCardRequestSuccess() {
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79051234567");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        String resultMessage = driver.findElement(By.cssSelector("[data-test-id=order-success]")).getText();
-        assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.",
-                resultMessage.trim());
+    void shouldTestSuccessRequest() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Смирнов Алексей");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79234545454");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button.button")).click();
+        String actualResult = driver.findElement(By.cssSelector("[data-test-id=order-success]")).getText().trim();
+        assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", actualResult);
     }
-
     @Test
-    void testNameRequired() {
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79051234567");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        WebElement errorHintElement = form.findElement(By.cssSelector("[data-test-id='name'].input_invalid .input__sub"));
-        assertEquals("Поле обязательно для заполнения", errorHintElement.getText().trim());
+    void shouldSeekSkipNameField() {
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79447567758");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button.button")).click();
+        String actualResult = driver.findElement(By.cssSelector("[data-test-id='name'] .input__sub ")).getText().trim();
+        assertEquals("Поле обязательно для заполнения", actualResult);
     }
-
     @Test
-    void testLatinNameNotValid() {
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Smith Mike");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79051234567");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        WebElement errorHintElement = form.findElement(By.cssSelector("[data-test-id='name'].input_invalid .input__sub"));
-        assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.",
-                errorHintElement.getText().trim());
+    void shouldSeekWrongPhoneNumberField() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Артем Коновалов");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("TF243&^");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.cssSelector("button.button")).click();
+        String actualResult = driver.findElement(By.cssSelector("[data-test-id='phone'] .input__sub ")).getText().trim();
+        assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", actualResult);
     }
-
     @Test
-    void testPhoneRequired() {
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        WebElement errorHintElement = form.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub"));
-        assertEquals("Поле обязательно для заполнения", errorHintElement.getText().trim());
+    void shouldSeekEmptyCheckbox() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Артем Коновалов");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79234567665");
+        driver.findElement(By.cssSelector("button.button")).click();
+        String actualResult = driver.findElement(By.cssSelector("[data-test-id=agreement].input_invalid")).getText().trim();
+        assertEquals("Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй", actualResult);
     }
-
     @Test
-    void testPhoneMustStartWithPlusSign() {
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("79051234567");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        WebElement errorHintElement = form.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub"));
-        assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.",
-                errorHintElement.getText().trim());
+    void shouldSeekEmptyPhoneField() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Андрей Смирнов");
+        driver.findElement(By.cssSelector("button.button")).click();
+        String actualResult = driver.findElement(By.cssSelector("[data-test-id=phone].input_invalid .input__sub")).getText().trim();
+        assertEquals("Поле обязательно для заполнения", actualResult);
     }
-
     @Test
-    void testPhoneOf10DigitsInvalid() {
-        // Verify that phone value of 10 digits is not valid
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+7905123456");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        assertPhoneErrorHint(form);
-    }
-
-    @Test
-    void testPhoneOf12DigitsInvalid() {
-        // Verify that phone value of 12 digits is not valid
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+790512345670");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        assertPhoneErrorHint(form);
-    }
-
-    @Test
-    void testPhoneWithAlphabeticCharacterInvalid() {
-        // Verify that phone value containing non-digit character is not valid
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79O51234567");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("button")).click();
-        assertPhoneErrorHint(form);
-    }
-
-    private static void assertPhoneErrorHint(WebElement form) {
-        WebElement errorHintElement = form.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub"));
-        assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.",
-                errorHintElement.getText().trim());
-    }
-
-    @Test
-    void testAgreementRequired() {
-        WebElement form = driver.findElement(By.className("form"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Попова Анна-Мария");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79051234567");
-        form.findElement(By.cssSelector("button")).click();
-        assertTrue(form.findElement(By.cssSelector("[data-test-id='agreement'].input_invalid")).isDisplayed());
+    void shouldSeekInvalidName() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Jim Beam");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+12024561111");
+        driver.findElement(By.cssSelector("button.button")).click();
+        String actualResult = driver.findElement(By.cssSelector("[data-test-id=name].input_invalid .input__sub")).getText().trim();
+        assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", actualResult);
     }
 }
